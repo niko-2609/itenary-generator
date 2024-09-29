@@ -1,20 +1,29 @@
 import NextAuth from "next-auth"
 import authConfig from "./auth.config"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { db } from "@/src/app/lib/db/db"
+import { db } from "@/app/lib/db/db"
+import { Adapter } from "next-auth/adapters"
+import Resend from "next-auth/providers/resend"
 
+
+const combinedProviders = [
+    ...authConfig.providers,
+    Resend({
+        from: 'noreply@nikojam.com'
+    })
+]
 export const { handlers, auth, signIn, signOut } = NextAuth({
     pages: {
         signIn: "/auth/sign-in",
         error: "/error"
     },
-    adapter: PrismaAdapter(db),
+    providers: combinedProviders,
+    adapter: PrismaAdapter(db) as Adapter,
     secret: process.env.AUTH_SECRET,
     session: {
         strategy: "jwt",
         maxAge: 30 * 24 * 60 * 60,  // 30 days in seconds
     },
-    ...authConfig,
     trustHost: true, // prevents using localhost in production, would use whatever is configured in NEXTAUTH_URL in env
     // events: {
     //     async linkAccount({ user }) {
@@ -35,21 +44,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 };
             }
             return token
-            //   // check if the user id exists in token, if no, return the token
-            //   if (!token.sub) return token;
-
-            //   // find if user present in token, exists in db 
-            //   const existingUser = await getUserById(token.sub)
-
-            //   // if no user is present, do nothing and return the token
-            //   if (!existingUser) return token;
-
-            //   // fetch the role value from db and add it in the token
-            //   token.role = existingUser.role
-
-
-            //   // default return 
-            //   return token
         },
         async session({ session, token }) {
 
@@ -63,17 +57,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     id: token.id as string
                 }
             }
-            // Adding user id(sub) from token in session
-            //   if (token.sub && session.user) {
-            //        session.user.id = token.sub
-            //   }
-
-            //   // Adding user "role" from token to session
-            //   if (token.role && session.user) {
-            //     session.user.role = token.role as UserRole
-            //   }
-
-            //   return session
         },
     },
 })

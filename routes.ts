@@ -14,8 +14,8 @@ export const publicRoutes: string[] = [
  * @type {string[]}
  */
 export const authRoutes: string[] = [
-    "/sign-in",
-    "/sign-up",
+    "/auth/sign-in",
+    "/auth/sign-up",
 ]
 
 
@@ -32,3 +32,11 @@ export const apiAuthPrefix: string = "/api/auth"
  * @type {string}
  */
 export const DEFAULT_LOGIN_REDIRECT: string = "/dashboard"
+
+
+
+/** 
+ * The default redirect path when user is not logged in
+ * @type {string}
+ */
+export const DEFAULT_PUBLIC_REDIRECT: string = "/auth/sign-in"
